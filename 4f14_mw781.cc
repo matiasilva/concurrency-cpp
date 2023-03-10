@@ -6,7 +6,7 @@
 #include <thread>
 #include <chrono>
 
-
+//  data type for queue
 struct Item {
     std::string str;
     int val;
@@ -22,9 +22,8 @@ public:
     void dequeue() {
         std::lock_guard<std::mutex> lock(mutex);
         if (items.empty()) {
-            std::cout << "Queue is empty" << std::endl;
+            std::cout << "Empty queue" << std::endl;
         } else {
-            std::cout << "Dequeued item: " << items.front().str << ", " << items.front().val << std::endl;
             items.pop();
         }
     }
@@ -34,6 +33,7 @@ public:
         return items.empty();
     }
 
+    // add up all the values by using a temp queue
     int sum() const {
         std::lock_guard<std::mutex> lock(mutex);
         int sum = 0;
@@ -45,6 +45,7 @@ public:
         return sum;
     }
 
+    // reverse items using a stack as temp storage
     void reverse() {
         std::lock_guard<std::mutex> lock(mutex);
 
@@ -59,6 +60,7 @@ public:
         }
     }
 
+    // print the items in a specific way
     void printItems() {
         std::lock_guard<std::mutex> lock(mutex);
         
@@ -67,15 +69,13 @@ public:
             Item item = temp.front();
             int pos = items.size() - temp.size();
             printf("pos: %2d | str: %5s | val: %3d   ", pos, item.str.c_str(), item.val);
-            // print two lines
-            if (pos % 2 == 0){ 
-                std::cout << std::endl;
-            }
+            std::cout << std::endl;
             temp.pop();
         }
         std::cout << std::endl;
     }
 
+    // use the random num gen to pick an "index" and remove it
     void removeRandomItem() {
         std::lock_guard<std::mutex> lock(mutex);
 
@@ -114,10 +114,11 @@ void populateQueue(Queue& q) {
     }
 }
 
+// workers for concurrency
 void reverseQueueWorker(Queue& q) {
     while (!q.isEmpty()) {
         q.reverse();
-        std::cout << "Sum of values in reversed queue: " << q.sum() << std::endl;
+        std::cout << "sum of values in reversed queue: " << q.sum() << std::endl;
         std::this_thread::sleep_for(std::chrono::milliseconds(500));
     }
 }
@@ -150,6 +151,7 @@ int main() {
     removerThread.join();
     reverserThread.join();
     printQueueThread.join();
+    // once queue empty we'll come back here
 
     return 0;
 }
